@@ -1,0 +1,169 @@
+services:
+  postgres:
+    image: postgres:16.1-alpine
+    ports:
+      - ${DATABASE_PORT}:5432
+    volumes:
+      - boilerplate-db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+        reservations:
+          cpus: '1.5'
+    networks:
+      - backend_network
+
+#  postgres2:
+#    image: postgres:16.1-alpine
+#    ports:
+#      - 5433:5432
+#    volumes:
+#      - boilerplate-db2:/var/lib/postgresql/data
+#    environment:
+#      POSTGRES_USER: ${DATABASE_USERNAME}
+#      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+#      POSTGRES_DB: ${DATABASE_NAME}
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: '1.5'
+#        reservations:
+#          cpus: '1.5'
+#    networks:
+#      - backend_network
+#
+#  postgres3:
+#    image: postgres:16.1-alpine
+#    ports:
+#      - 5434:5432
+#    volumes:
+#      - boilerplate-db3:/var/lib/postgresql/data
+#    environment:
+#      POSTGRES_USER: ${DATABASE_USERNAME}
+#      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+#      POSTGRES_DB: ${DATABASE_NAME}
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: '1.5'
+#        reservations:
+#          cpus: '1.5'
+#    networks:
+#      - backend_network
+
+  #  pgbouncer:
+#    image: 'bitnami/pgbouncer:latest'
+#    ports:
+#      - '6432:6432'
+#    depends_on:
+#      - postgres
+#    environment:
+#      POSTGRESQL_PASSWORD: ${DATABASE_PASSWORD}
+#      POSTGRESQL_USERNAME: ${DATABASE_USERNAME}
+#      POSTGRESQL_DATABASE: ${DATABASE_NAME}
+#      POSTGRESQL_HOST: postgres
+#      PGBOUNCER_DEFAULT_POOL_SIZE: 20
+#      PGBOUNCER_MIN_POOL_SIZE: 20
+#      PGBOUNCER_DATABASE: ${DATABASE_NAME}
+
+#  maildev:
+#    build:
+#      context: .
+#      dockerfile: maildev.Dockerfile
+#    ports:
+#      - ${MAIL_CLIENT_PORT}:1080
+#      - ${MAIL_PORT}:1025
+#
+#  adminer:
+#    image: adminer
+#    restart: always
+#    ports:
+#      - 8080:8080
+
+  # Uncomment to use redis
+  # redis:
+  #   image: redis:7-alpine
+  #   ports:
+  #     - 6379:6379
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - ${APP_PORT}:${APP_PORT}
+    environment:
+      DATABASE_HOST: postgres
+      DATABASE_HOST1: postgres
+#      DATABASE_HOST2: postgres2
+#      DATABASE_HOST3: postgres3
+    depends_on:
+      - postgres
+#      - postgres2
+#      - postgres3
+    networks:
+      - backend_network
+
+#  api2:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    ports:
+#      - 3001:${APP_PORT}
+#    environment:
+#      DATABASE_HOST: postgres
+#      DATABASE_HOST1: postgres
+#      DATABASE_HOST2: postgres2
+#      DATABASE_HOST3: postgres3
+#    depends_on:
+#      - postgres
+#      - postgres2
+#      - postgres3
+#    networks:
+#      - backend_network
+#
+#  api3:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    ports:
+#      - 3002:${APP_PORT}
+#    environment:
+#      DATABASE_HOST: postgres
+#      DATABASE_HOST1: postgres
+#      DATABASE_HOST2: postgres2
+#      DATABASE_HOST3: postgres3
+#    depends_on:
+#      - postgres
+#      - postgres2
+#      - postgres3
+#    networks:
+#      - backend_network
+#
+#  nginx:
+#    image: nginx:latest
+#    container_name: nginx_load_balancer
+#    ports:
+#      - "8888:80" # Port mặc định của Nginx
+#    volumes:
+#      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro # Mount file cấu hình Nginx
+#    depends_on:
+#      - api
+#      - api2
+#      - api3
+#    networks:
+#      - backend_network
+
+volumes:
+  boilerplate-db:
+  boilerplate-db2:
+  boilerplate-db3:
+
+networks:
+  backend_network:
+    driver: bridge
