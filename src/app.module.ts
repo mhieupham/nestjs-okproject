@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { BullModule } from '@nestjs/bull';
 import { UsersModule } from './users/users.module';
 import { FilesModule } from './files/files.module';
 import { AuthModule } from './auth/auth.module';
@@ -73,6 +74,12 @@ import { MailerModule } from './mailer/mailer.module';
       ],
       imports: [ConfigModule],
       inject: [ConfigService],
+    }),
+    BullModule.forRoot({
+      redis: {
+        host: 'localhost',
+        port: 6379,
+      },
     }),
     UsersModule,
     FilesModule,

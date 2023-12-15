@@ -28,7 +28,8 @@ import { SessionService } from 'src/session/session.service';
 import { JwtRefreshPayloadType } from './strategies/types/jwt-refresh-payload.type';
 import { Session } from 'src/session/entities/session.entity';
 import { JwtPayloadType } from './strategies/types/jwt-payload.type';
-
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 @Injectable()
 export class AuthService {
   constructor(
@@ -37,12 +38,22 @@ export class AuthService {
     private sessionService: SessionService,
     private mailService: MailService,
     private configService: ConfigService<AllConfigType>,
+    @InjectQueue('auth') private readonly authQueue: Queue,
   ) {}
 
   async validateLogin(loginDto: AuthEmailLoginDto): Promise<LoginResponseType> {
     const user = await this.usersService.findOne({
       email: loginDto.email,
     });
+    // for queue
+    // await this.authQueue.add(
+    //   'transcodeAuthLogin',
+    //   {
+    //     email: loginDto.email,
+    //     test: true,
+    //   },
+    //   { delay: 6000 },
+    // );
 
     if (!user) {
       throw new HttpException(
