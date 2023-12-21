@@ -28,9 +28,20 @@ import { DataSource, DataSourceOptions } from 'typeorm';
 import { AllConfigType } from './config/config.type';
 import { SessionModule } from './session/session.module';
 import { MailerModule } from './mailer/mailer.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { TasksModule } from './tasks-schedules-example/tasks.module';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
+    TasksModule,
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 99999,
+      },
+    ]),
     ConfigModule.forRoot({
       isGlobal: true,
       load: [
