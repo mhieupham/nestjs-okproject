@@ -9,7 +9,7 @@ import { Repository } from 'typeorm';
 export class UserSeedService {
   constructor(
     @InjectRepository(User)
-    private repository: Repository<User>,
+    private repository: Repository<any>,
   ) {}
 
   async run() {

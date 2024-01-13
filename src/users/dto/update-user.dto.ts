@@ -3,61 +3,24 @@ import { CreateUserDto } from './create-user.dto';
 
 import { Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { Role } from '../../roles/entities/role.entity';
-import { IsEmail, IsOptional, MinLength, Validate } from 'class-validator';
-import { Status } from 'src/statuses/entities/status.entity';
-import { IsNotExist } from 'src/utils/validators/is-not-exists.validator';
-import { FileEntity } from 'src/files/entities/file.entity';
-import { IsExist } from 'src/utils/validators/is-exists.validator';
+import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
 import { lowerCaseTransformer } from 'src/utils/transformers/lower-case.transformer';
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {
-  @ApiProperty({ example: 'test1@example.com' })
+  @ApiProperty({ example: '1234567812341234' })
+  @IsNotEmpty()
+  identification_number: string;
+
+  @ApiProperty({ example: 'user@gmail.com' })
   @Transform(lowerCaseTransformer)
-  @IsOptional()
-  @Validate(IsNotExist, ['User'], {
-    message: 'emailAlreadyExists',
-  })
   @IsEmail()
-  email?: string | null;
+  email: string;
 
   @ApiProperty()
-  @IsOptional()
   @MinLength(6)
-  password?: string;
+  password: string;
 
-  provider?: string;
-
-  socialId?: string | null;
-
-  @ApiProperty({ example: 'John' })
-  @IsOptional()
-  firstName?: string | null;
-
-  @ApiProperty({ example: 'Doe' })
-  @IsOptional()
-  lastName?: string | null;
-
-  @ApiProperty({ type: () => FileEntity })
-  @IsOptional()
-  @Validate(IsExist, ['FileEntity', 'id'], {
-    message: 'imageNotExists',
-  })
-  photo?: FileEntity | null;
-
-  @ApiProperty({ type: Role })
-  @IsOptional()
-  @Validate(IsExist, ['Role', 'id'], {
-    message: 'roleNotExists',
-  })
-  role?: Role | null;
-
-  @ApiProperty({ type: Status })
-  @IsOptional()
-  @Validate(IsExist, ['Status', 'id'], {
-    message: 'statusNotExists',
-  })
-  status?: Status;
-
-  hash?: string | null;
+  @ApiProperty({ example: 'Nguyen Van A', name: 'full_name' })
+  @IsNotEmpty()
+  full_name: string;
 }

@@ -31,6 +31,12 @@ import { MailerModule } from './mailer/mailer.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TasksModule } from './tasks-schedules-example/tasks.module';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { RolesModule } from './roles/roles.module';
+import {
+  addTransactionalDataSource,
+  initializeTransactionalContext,
+  StorageDriver,
+} from 'typeorm-transactional';
 
 @Module({
   imports: [
@@ -60,7 +66,12 @@ import { ThrottlerModule } from '@nestjs/throttler';
     TypeOrmModule.forRootAsync({
       useClass: TypeOrmConfigService,
       dataSourceFactory: async (options: DataSourceOptions) => {
-        return new DataSource(options).initialize();
+        const dataSource = new DataSource(options).initialize();
+        initializeTransactionalContext({
+          storageDriver: StorageDriver.ASYNC_LOCAL_STORAGE,
+        });
+        addTransactionalDataSource(await dataSource);
+        return dataSource;
       },
     }),
     I18nModule.forRootAsync({
@@ -93,6 +104,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
       },
     }),
     UsersModule,
+    RolesModule,
     FilesModule,
     AuthModule,
     AuthFacebookModule,
