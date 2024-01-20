@@ -2,33 +2,34 @@ import {
   Column,
   AfterLoad,
   CreateDateColumn,
-  DeleteDateColumn,
   Entity,
-  Index,
-  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   BeforeInsert,
   BeforeUpdate,
+  OneToMany,
 } from 'typeorm';
-import { Role } from '../../roles/entities/role.entity';
-import { Status } from '../../statuses/entities/status.entity';
-import { FileEntity } from '../../files/entities/file.entity';
 import bcrypt from 'bcryptjs';
 import { EntityHelper } from 'src/utils/entity-helper';
-import { AuthProvidersEnum } from 'src/auth/auth-providers.enum';
 import { Exclude, Expose } from 'class-transformer';
+import { Gender, StatusUser } from '../../config/app.config';
+import { UserRolesEntity } from '../../user_roles/entities/user_roles.entity';
 
 @Entity()
 export class User extends EntityHelper {
   @PrimaryGeneratedColumn()
   id: number;
 
-  // For "string | null" we need to use String type.
-  // More info: https://github.com/typeorm/typeorm/issues/2567
   @Column({ type: String, unique: true, nullable: true })
   @Expose({ groups: ['me', 'admin'] })
-  email: string | null;
+  identification_number: string;
+
+  // For "string | null" we need to use String type.
+  // More info: https://github.com/typeorm/typeorm/issues/2567
+
+  @Column({ type: String, unique: true, nullable: true })
+  @Expose({ groups: ['me', 'admin'] })
+  email: string;
 
   @Column({ nullable: true })
   @Exclude({ toPlainOnly: true })
@@ -51,44 +52,57 @@ export class User extends EntityHelper {
     }
   }
 
-  @Column({ default: AuthProvidersEnum.email })
-  @Expose({ groups: ['me', 'admin'] })
-  provider: string;
+  @Column({ type: String, nullable: false })
+  full_name: string;
 
-  @Index()
-  @Column({ type: String, nullable: true })
-  @Expose({ groups: ['me', 'admin'] })
-  socialId: string | null;
+  @Column({ type: Number, nullable: false })
+  status: StatusUser;
 
-  @Index()
-  @Column({ type: String, nullable: true })
-  firstName: string | null;
+  @Column({ type: Number, nullable: true })
+  phone_number?: string;
 
-  @Index()
-  @Column({ type: String, nullable: true })
-  lastName: string | null;
+  @Column({ type: Number, nullable: false })
+  gender_id: Gender;
 
-  @ManyToOne(() => FileEntity, {
-    eager: true,
-  })
-  photo?: FileEntity | null;
+  @Column({ type: String, nullable: false })
+  date_of_birth: string;
 
-  @ManyToOne(() => Role, {
-    eager: true,
-  })
-  role?: Role | null;
+  @Column({ type: String, nullable: false })
+  hometown: string;
 
-  @ManyToOne(() => Status, {
-    eager: true,
-  })
-  status?: Status;
+  @Column({ type: String, nullable: false })
+  place_residence: string;
 
-  @CreateDateColumn()
+  @Column({ type: Number, nullable: false })
+  province_id: number;
+
+  @Column({ type: Number, nullable: false })
+  district_id: number;
+
+  @Column({ type: String, nullable: false })
+  date_of_issue: string;
+
+  @Column({ type: String, nullable: false })
+  place_of_issue: string;
+
+  @Column({ type: String, nullable: false })
+  front_of_identification_card_image_url: string;
+
+  @Column({ type: String, nullable: false })
+  back_of_identification_card_image_url: string;
+
+  @BeforeInsert()
+  setCreatedAt() {
+    this.createdAt = new Date();
+    this.updatedAt = new Date();
+  }
+
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  @DeleteDateColumn()
-  deletedAt: Date;
+  @OneToMany(() => UserRolesEntity, (userRole) => userRole.user_id)
+  userRoles: UserRolesEntity[];
 }

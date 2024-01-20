@@ -68,3 +68,21 @@ export default registerAs<AppConfig>('app', () => {
     headerLanguage: process.env.APP_HEADER_LANGUAGE || 'x-custom-lang',
   };
 });
+
+export enum Gender {
+  Male = 1,
+  Female = 2,
+}
+
+export enum StatusUser {
+  Active = 1,
+  Inactive = 2,
+  Pending = 3,
+}
+
+export enum RoleName {
+  Admin = 'admin',
+  Student = 'student',
+  Parents = 'parents',
+  Teacher = 'teacher',
+}
